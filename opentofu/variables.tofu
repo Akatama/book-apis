@@ -42,3 +42,17 @@ variable "DBSubnetPrefix" {
   default     = "10.2.1.0/24"
   description = "The Address Prefix for the DB subneet"
 }
+variable "KeyVaultName" {
+  type    = string
+  default = "jimmykeys"
+}
+
+variable "KeyVaultResourceGroup" {
+  type    = string
+  default = "key-vault"
+}
+
+variable "AdminPasswordSecretName" {
+  type    = string
+  default = "mySqlAdminPassword"
+}
