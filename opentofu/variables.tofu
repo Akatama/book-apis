@@ -6,7 +6,7 @@ variable "ResourceBaseName" {
 variable "ResourceGroupName" {
   type        = string
   description = "Name of the resource group for the Database and the Blob Storage"
-  default     = "blogifier"
+  default     = "booksapi"
 }
 
 variable "Location" {
@@ -55,4 +55,27 @@ variable "KeyVaultResourceGroup" {
 variable "AdminPasswordSecretName" {
   type    = string
   default = "mySqlAdminPassword"
+}
+
+variable "AdminUserName" {
+  type        = string
+  description = "Administrator username for the DB"
+}
+
+variable "ServerEdition" {
+  type        = string
+  description = "The tier of the particular SKU. Valid values are B for Burstable, GP for GeneralPurpose and MO for Memory Optimized. High Availability is available for GeneralPurpose and MemoryOptimized sku."
+  default     = "B"
+}
+
+variable "DBSkuName" {
+  type        = string
+  default     = "Standard_B1ms"
+  description = "The name of the sku, e.g. Standard_D32ds_v4."
+}
+
+variable "DatabaseName" {
+  type    = string
+  default = "bookbrainz"
+
 }
