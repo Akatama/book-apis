@@ -74,8 +74,7 @@ variable "DBSkuName" {
   description = "The name of the sku, e.g. Standard_D32ds_v4."
 }
 
-variable "DatabaseName" {
-  type    = string
-  default = "bookbrainz"
-
+variable "IPAddress" {
+  type        = string
+  description = "IP Address for Firewall access"
 }

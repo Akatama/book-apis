@@ -14,7 +14,9 @@ resource "azurerm_postgresql_flexible_server" "postgres_server" {
   sku_name = "${var.ServerEdition}_${var.DBSkuName}"
 }
 
-resource "azurerm_postgresql_flexible_server_database" "books" {
-  name      = var.DatabaseName
-  server_id = azurerm_postgresql_flexible_server.postgres_server.id
+resource "azurerm_postgresql_flexible_server_firewall_rule" "my_access" {
+  name             = "my_access"
+  server_id        = azurerm_postgresql_flexible_server.postgres_server.id
+  start_ip_address = var.IPAddress
+  end_ip_address   = var.IPAddress
 }

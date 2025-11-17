@@ -1,2 +1,3 @@
 opentofu/.terraform*
 opentofu/terraform*
+opentofu/.env
