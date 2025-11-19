@@ -3,7 +3,7 @@ resource "azurerm_postgresql_flexible_server" "postgres_server" {
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = var.Location
 
-  version                       = "12"
+  version                       = "17"
   administrator_login           = var.AdminUserName
   administrator_password        = data.azurerm_key_vault_secret.my_sql_admin_password.value
   public_network_access_enabled = true

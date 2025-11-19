@@ -1,3 +1,6 @@
 opentofu/.terraform*
 opentofu/terraform*
 opentofu/.env
+booksapi/.env
+booksapi/.venv
+booksapi/__pycache__
