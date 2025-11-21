@@ -1,86 +1,84 @@
-import os
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException
-from psycopg_pool import AsyncConnectionPool
-from psycopg.rows import dict_row
+
+from . import db
 
 app = FastAPI(title="Books API")
-
-# Global async connection pool (could be moved to its own module, e.g. booksapi/db.py)
-pool: Optional[AsyncConnectionPool] = None
-
-
-def _build_dsn_from_env() -> str:
-    db_name = os.getenv("DB_NAME")
-    db_user = os.getenv("DB_USER")
-    db_password = os.getenv("DB_PASSWORD")
-    db_host = os.getenv("DB_HOST", "localhost")
-    db_port = os.getenv("DB_PORT", "5432")
-
-    if not all([db_name, db_user, db_password]):
-        raise RuntimeError(
-            "Database configuration missing. "
-            "Ensure DB_NAME, DB_USER, and DB_PASSWORD are set."
-        )
-
-    return (
-        f"postgresql+psycopg://{db_user}:{db_password}"
-        f"@{db_host}:{db_port}/{db_name}"
-    )
 
 
 @app.on_event("startup")
 async def on_startup() -> None:
-    global pool
-    dsn = _build_dsn_from_env()
-    # Configure the async connection pool
-    pool = AsyncConnectionPool(
-        conninfo=dsn,
-        min_size=1,
-        max_size=10,
-        kwargs={"row_factory": dict_row},
-    )
+    await db.init_pool()
 
 
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
-    global pool
-    if pool is not None:
-        await pool.close()
-        pool = None
+    await db.close_pool()
 
 
-async def _call_search_function(
-    func_name: str,
-    first_arg: str,
+async def _search_author(
+    author_name: str,
     publish_by_date: Optional[str],
 ) -> List[dict]:
     """
-    Helper to call a PostgreSQL function that takes (text, text | null)
-    and returns a set of rows.
+    Call PostgreSQL function:
+        search_author(author_name text, publish_by_date text default ...)
+    If publish_by_date is None, omit it so the DB default is used.
     """
-    if pool is None:
-        raise RuntimeError("Database connection pool is not initialized")
+    author_name = author_name.strip()
 
-    # Normalize user input a bit; psycopg will handle escaping safely.
-    first_arg = first_arg.strip()
+    async with db.get_connection() as conn:
+        async with conn.cursor() as cur:
+            if publish_by_date is None:
+                query = "SELECT * FROM search_author(%s);"
+                params = (author_name,)
+            else:
+                query = "SELECT * FROM search_author(%s, %s);"
+                params = (author_name, publish_by_date)
 
-    query = f"SELECT * FROM {func_name}(%s, %s);"
-    params = (first_arg, publish_by_date)
-
-    try:
-        async with pool.connection() as conn:
-            async with conn.cursor() as cur:
+            try:
                 await cur.execute(query, params)
                 rows: List[dict] = await cur.fetchall()
                 return rows
-    except Exception as exc:  # noqa: BLE001
-        # In a real app, log the exception details.
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error querying database using {func_name}",
-        ) from exc
+            except Exception as exc:  # noqa: BLE001
+                # In a real app, log the exception details.
+                raise HTTPException(
+                    status_code=500,
+                    detail="Error querying database using search_author",
+                ) from exc
+
+
+async def _search_books(
+    book_name: str,
+    publish_by_date: Optional[str],
+) -> List[dict]:
+    """
+    Call PostgreSQL function:
+        search_books(book_name text, publish_by_date text default ...)
+    If publish_by_date is None, omit it so the DB default is used.
+    """
+    book_name = book_name.strip()
+
+    async with db.get_connection() as conn:
+        async with conn.cursor() as cur:
+            if publish_by_date is None:
+                query = "SELECT * FROM search_books(%s);"
+                params = (book_name,)
+            else:
+                query = "SELECT * FROM search_books(%s, %s);"
+                params = (book_name, publish_by_date)
+
+            try:
+                await cur.execute(query, params)
+                rows: List[dict] = await cur.fetchall()
+                return rows
+            except Exception as exc:  # noqa: BLE001
+                # In a real app, log the exception details.
+                raise HTTPException(
+                    status_code=500,
+                    detail="Error querying database using search_books",
+                ) from exc
 
 
 @app.get("/author/{author_name}")
@@ -92,12 +90,10 @@ async def get_books_by_author(
     Get books by author using the PostgreSQL function:
         search_author(author_name, publish_by_date)
     """
-    rows = await _call_search_function(
-        func_name="search_author",
-        first_arg=author_name,
+    return await _search_author(
+        author_name=author_name,
         publish_by_date=publish_by_date,
     )
-    return rows
 
 
 @app.get("/books/{book_name}")
@@ -109,9 +105,7 @@ async def get_books_by_title(
     Get books by title using the PostgreSQL function:
         search_books(book_name, publish_by_date)
     """
-    rows = await _call_search_function(
-        func_name="search_books",
-        first_arg=book_name,
+    return await _search_books(
+        book_name=book_name,
         publish_by_date=publish_by_date,
     )
-    return rows
