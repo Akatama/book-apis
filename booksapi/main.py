@@ -1,20 +1,23 @@
 from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException
+from contextlib import asynccontextmanager
 
 import db  # import as a plain module, since "booksapi" is not a package/module
 
-app = FastAPI(title="Books API")
 
-
-@app.on_event("startup")
-async def on_startup() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
     await db.init_pool()
+    try:
+        yield
+    finally:
+        # Shutdown
+        await db.close_pool()
 
 
-@app.on_event("shutdown")
-async def on_shutdown() -> None:
-    await db.close_pool()
+app = FastAPI(title="Books API", lifespan=lifespan)
 
 
 @app.get("/author/{author_name}")
