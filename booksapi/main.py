@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException
 
-from . import db
+from booksapi import db
 
 app = FastAPI(title="Books API")
 
