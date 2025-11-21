@@ -51,12 +51,16 @@ async def init_pool() -> None:
         return
 
     dsn = _build_dsn_from_env()
+    # Create the pool without opening it (constructor-only).
     pool = AsyncConnectionPool(
         conninfo=dsn,
         min_size=1,
         max_size=10,
         kwargs={"row_factory": dict_row},
+        open=False,
     )
+    # Explicitly open the pool to avoid the deprecation warning.
+    await pool.open()
 
 
 async def close_pool() -> None:
