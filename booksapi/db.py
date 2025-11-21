@@ -1,4 +1,5 @@
 import os
+from contextlib import asynccontextmanager
 from typing import AsyncIterator, Optional
 
 from psycopg_pool import AsyncConnectionPool
@@ -21,7 +22,7 @@ def _build_dsn_from_env() -> str:
             "Ensure DB_NAME, DB_USER, and DB_PASSWORD are set."
         )
 
-    # Plain psycopg3 DSN
+    # Plain psycopg3 DSN (Data Source Name)
     return (
         f"postgresql://{db_user}:{db_password}"
         f"@{db_host}:{db_port}/{db_name}"
@@ -51,6 +52,7 @@ async def close_pool() -> None:
         pool = None
 
 
+@asynccontextmanager
 async def get_connection() -> AsyncIterator:
     """
     Async context manager helper to get a connection from the pool.

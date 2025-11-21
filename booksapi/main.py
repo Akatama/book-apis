@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 
 from . import db
 
-app = FastAPI()
+app = FastAPI(title="Books API")
 
 
 @app.on_event("startup")
