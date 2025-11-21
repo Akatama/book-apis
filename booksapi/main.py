@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException
 
-from booksapi import db
+import db  # import as a plain module, since "booksapi" is not a package/module
 
 app = FastAPI(title="Books API")
 
