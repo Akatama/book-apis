@@ -54,6 +54,9 @@ RUN uv sync --frozen
 ############################
 FROM base AS runtime
 
+# Expose application port
+EXPOSE 8000
+
 # Create non-root user and group
 RUN groupadd --system appuser && useradd --system --gid appuser --home-dir /app appuser
 
