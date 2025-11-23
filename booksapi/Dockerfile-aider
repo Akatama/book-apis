@@ -25,12 +25,11 @@ ENV UV_SYSTEM_PYTHON=1 \
 
 # Extra build-time deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl build-essential \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh -s -- --yes
-ENV PATH="/root/.local/bin:${PATH}"
+# Copy uv from the official image
+COPY --from=ghcr.io/astral-sh/uv:0.9.11 /uv /bin/uv
 
 # Copy project metadata first for better caching
 COPY pyproject.toml uv.lock ./
