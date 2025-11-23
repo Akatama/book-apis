@@ -1,13 +1,21 @@
 # syntax=docker/dockerfile:1.7
 
 ############################
-# Builder image
+# Base image
 ############################
-FROM python:3.13-slim AS builder
+FROM python:3.13-slim AS base
 
 ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    UV_SYSTEM_PYTHON=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app
+
+############################
+# Builder image
+############################
+FROM base AS builder
+
+ENV UV_SYSTEM_PYTHON=1 \
     UV_LINK_MODE=copy
 
 # Install system deps for building wheels (if needed)
@@ -18,8 +26,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh -s -- --yes
 ENV PATH="/root/.local/bin:${PATH}"
-
-WORKDIR /app
 
 # Copy project metadata first for better caching
 COPY pyproject.toml uv.lock ./
@@ -39,17 +45,15 @@ RUN . /app/.venv/bin/activate \
 ############################
 # Runtime image
 ############################
-FROM python:3.13-slim AS runtime
-
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+FROM base AS runtime
 
 # Install only runtime OS deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Create non-root user and group
+RUN groupadd --system appuser && useradd --system --gid appuser --home-dir /app appuser
 
 # Copy the virtualenv and app code from builder
 COPY --from=builder /app/.venv /app/.venv
@@ -57,5 +61,10 @@ COPY --from=builder /app /app
 
 ENV PATH="/app/.venv/bin:${PATH}"
 
-# Default command: run the FastAPI app with uvicorn
-CMD ["uvicorn", "booksapi.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Ensure correct ownership for non-root user
+RUN chown -R appuser:appuser /app
+
+USER appuser
+
+# Default command: run the FastAPI app using fastapi's CLI
+CMD ["fastapi", "run", "booksapi/main.py", "--host", "0.0.0.0", "--port", "8000"]
