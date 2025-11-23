@@ -4,3 +4,6 @@ https://bookbrainz-dev-docs.readthedocs.io/en/latest/docs/installation.html
 gravity:
 https://github.com/bbrumm/databasestar/tree/main/sample_databases/sample_db_gravity
 https://www.databasestar.com/sample-bookstore-database/
+
+FastAPI async database connection
+https://blog.danielclayton.co.uk/posts/database-connections-with-fastapi/
