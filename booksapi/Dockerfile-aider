@@ -10,6 +10,11 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
+# Common OS deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 ############################
 # Builder image
 ############################
@@ -18,9 +23,9 @@ FROM base AS builder
 ENV UV_SYSTEM_PYTHON=1 \
     UV_LINK_MODE=copy
 
-# Install system deps for building wheels (if needed)
+# Extra build-time deps
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates build-essential \
+    curl build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -47,24 +52,16 @@ RUN . /app/.venv/bin/activate \
 ############################
 FROM base AS runtime
 
-# Install only runtime OS deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
 # Create non-root user and group
 RUN groupadd --system appuser && useradd --system --gid appuser --home-dir /app appuser
 
-# Copy the virtualenv and app code from builder
-COPY --from=builder /app/.venv /app/.venv
-COPY --from=builder /app /app
+# Copy the virtualenv and app code from builder, setting ownership directly
+COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
+COPY --from=builder --chown=appuser:appuser /app /app
 
 ENV PATH="/app/.venv/bin:${PATH}"
-
-# Ensure correct ownership for non-root user
-RUN chown -R appuser:appuser /app
 
 USER appuser
 
 # Default command: run the FastAPI app using fastapi's CLI
-CMD ["fastapi", "run", "booksapi/main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["fastapi", "run", "main.py"]
