@@ -79,11 +79,6 @@ variable "IPAddress" {
   description = "IP Address for Firewall access"
 }
 
-variable "ContainerRegistryName" {
-  type        = string
-  description = "Name of the Azure Container Registry. Must be globally unique and 5-50 alphanumeric characters."
-}
-
 variable "ContainerRegistrySku" {
   type        = string
   description = "SKU of the Azure Container Registry. Valid values: Basic, Standard, Premium."

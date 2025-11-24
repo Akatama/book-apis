@@ -1,5 +1,5 @@
 resource "azurerm_container_registry" "acr" {
-  name                = var.ContainerRegistryName
+  name                = "${var.ResourceBaseName}acr"
   resource_group_name = var.ResourceGroupName
   location            = var.Location
 
