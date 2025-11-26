@@ -100,6 +100,7 @@ variable "AppServicePlanSkuName" {
 variable "WebAppContainerImageName" {
   type        = string
   description = "Container image name (repository) in ACR for the web app."
+  default     = "booksapi"
 }
 
 variable "WebAppContainerImageTag" {
