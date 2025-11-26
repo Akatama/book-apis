@@ -30,11 +30,18 @@ resource "azurerm_linux_web_app" "web_app" {
   }
 
   app_settings = {
-    WEBSITES_PORT                        = var.WebAppContainerPort
-    DOCKER_REGISTRY_SERVER_URL           = "https://${azurerm_container_registry.acr.login_server}"
-    DOCKER_REGISTRY_SERVER_USERNAME      = azurerm_container_registry.acr.admin_username
-    DOCKER_REGISTRY_SERVER_PASSWORD      = azurerm_container_registry.acr.admin_password
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE  = "false"
+    WEBSITES_PORT                       = var.WebAppContainerPort
+    DOCKER_REGISTRY_SERVER_URL          = "https://${azurerm_container_registry.acr.login_server}"
+    DOCKER_REGISTRY_SERVER_USERNAME     = azurerm_container_registry.acr.admin_username
+    DOCKER_REGISTRY_SERVER_PASSWORD     = azurerm_container_registry.acr.admin_password
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false"
+
+    # Database-related settings
+    DB_NAME     = var.DBName
+    DB_USER     = var.AdminUserName
+    DB_PASSWORD = data.azurerm_key_vault_secret.my_sql_admin_password.value
+    DB_HOST     = azurerm_postgresql_flexible_server.postgres_server.fqdn
+    DB_PORT     = azurerm_postgresql_flexible_server.postgres_server.port
   }
 
   identity {
