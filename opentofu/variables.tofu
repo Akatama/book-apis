@@ -90,3 +90,26 @@ variable "ContainerRegistryAdminEnabled" {
   description = "Whether the admin user is enabled for the Azure Container Registry."
   default     = false
 }
+
+variable "AppServicePlanSkuName" {
+  type        = string
+  description = "SKU name for the App Service Plan, e.g. B1, P1v3."
+  default     = "B1"
+}
+
+variable "WebAppContainerImageName" {
+  type        = string
+  description = "Container image name (repository) in ACR for the web app."
+}
+
+variable "WebAppContainerImageTag" {
+  type        = string
+  description = "Container image tag in ACR for the web app."
+  default     = "latest"
+}
+
+variable "WebAppContainerPort" {
+  type        = string
+  description = "Port exposed by the container that the web app should listen on."
+  default     = "8000"
+}
