@@ -29,8 +29,7 @@ resource "azurerm_linux_web_app" "web_app" {
     always_on = true
 
     # Use the web app's system-assigned managed identity to pull from ACR
-    container_registry_use_managed_identity          = true
-    container_registry_managed_identity_client_id    = azurerm_linux_web_app.web_app.identity[0].principal_id
+    container_registry_use_managed_identity = true
   }
 
   app_settings = {
