@@ -62,6 +62,12 @@ variable "AdminUserName" {
   description = "Administrator username for the DB"
 }
 
+variable "DBName" {
+  type        = string
+  description = "Name of the database"
+  default     = "gravity_books"
+}
+
 variable "ServerEdition" {
   type        = string
   description = "The tier of the particular SKU. Valid values are B for Burstable, GP for GeneralPurpose and MO for Memory Optimized. High Availability is available for GeneralPurpose and MemoryOptimized sku."
