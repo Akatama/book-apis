@@ -30,3 +30,8 @@ resource "azurerm_subnet" "db_subnet" {
   #   }
   # }
 }
+
+resource "azurerm_app_service_virtual_network_swift_connection" "web_app_vnet_integration" {
+  app_service_id = azurerm_linux_web_app.web_app.id
+  subnet_id      = azurerm_subnet.app_subnet.id
+}
