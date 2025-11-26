@@ -41,7 +41,7 @@ resource "azurerm_linux_web_app" "web_app" {
     DB_USER     = var.AdminUserName
     DB_PASSWORD = data.azurerm_key_vault_secret.my_sql_admin_password.value
     DB_HOST     = azurerm_postgresql_flexible_server.postgres_server.fqdn
-    DB_PORT     = azurerm_postgresql_flexible_server.postgres_server.port
+    DB_PORT     = "5432"
   }
 
   identity {
