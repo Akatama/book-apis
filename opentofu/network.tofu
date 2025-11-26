@@ -16,6 +16,16 @@ resource "azurerm_subnet" "app_subnet" {
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [var.AppSubnetPrefix]
   service_endpoints    = ["Microsoft.Storage"]
+
+  delegation {
+    name = "appservice-delegation"
+    service_delegation {
+      name = "Microsoft.Web/serverFarms"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/action",
+      ]
+    }
+  }
 }
 
 resource "azurerm_subnet" "db_subnet" {
