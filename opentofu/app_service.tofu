@@ -27,6 +27,10 @@ resource "azurerm_linux_web_app" "web_app" {
     }
 
     always_on = true
+
+    # Use the web app's system-assigned managed identity to pull from ACR
+    container_registry_use_managed_identity          = true
+    container_registry_managed_identity_client_id    = azurerm_linux_web_app.web_app.identity[0].principal_id
   }
 
   app_settings = {
@@ -53,4 +57,11 @@ resource "azurerm_linux_web_app" "web_app" {
   depends_on = [
     azurerm_container_registry.acr
   ]
+}
+
+# Grant the web app's managed identity AcrPull on the ACR
+resource "azurerm_role_assignment" "web_app_acr_pull" {
+  scope                = azurerm_container_registry.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = azurerm_linux_web_app.web_app.identity[0].principal_id
 }
