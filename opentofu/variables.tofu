@@ -19,6 +19,7 @@ variable "VirtualNetworkAddressSpace" {
   default     = "10.2.0.0/16"
   description = "The Address space of the virtual network"
 }
+
 variable "AppSubnetName" {
   type        = string
   default     = "app"
@@ -42,6 +43,7 @@ variable "DBSubnetPrefix" {
   default     = "10.2.1.0/24"
   description = "The Address Prefix for the DB subneet"
 }
+
 variable "KeyVaultName" {
   type    = string
   default = "jimmykeys"

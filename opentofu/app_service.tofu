@@ -57,3 +57,8 @@ resource "azurerm_linux_web_app" "web_app" {
     azurerm_container_registry.acr
   ]
 }
+
+resource "azurerm_app_service_virtual_network_swift_connection" "web_app_vnet_integration" {
+  app_service_id = azurerm_linux_web_app.web_app.id
+  subnet_id      = azurerm_subnet.app_subnet.id
+}

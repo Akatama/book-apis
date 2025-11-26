@@ -1,4 +1,3 @@
-
 resource "azurerm_resource_group" "resource_group" {
   name     = var.ResourceGroupName
   location = var.Location
