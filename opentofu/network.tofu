@@ -33,16 +33,6 @@ resource "azurerm_subnet" "db_subnet" {
   resource_group_name  = azurerm_resource_group.resource_group.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [var.DBSubnetPrefix]
-
-  delegation {
-    name = "PostgresFlexibleServers"
-    service_delegation {
-      name = "Microsoft.DBforPostgres/flexibleServers"
-      actions = [
-        "Microsoft.Network/virtualNetworks/subnets/join/action",
-      ]
-    }
-  }
 }
 
 resource "azurerm_app_service_virtual_network_swift_connection" "web_app_vnet_integration" {
