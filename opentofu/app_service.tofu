@@ -42,8 +42,12 @@ resource "azurerm_linux_web_app" "web_app" {
     DB_NAME     = var.DBName
     DB_USER     = var.AdminUserName
     DB_PASSWORD = data.azurerm_key_vault_secret.my_sql_admin_password.value
-    DB_HOST     = azurerm_postgresql_flexible_server.postgres_server.fqdn
-    DB_PORT     = "5432"
+
+    # Use the private endpoint hostname instead of the public FQDN
+    # Server name is lower(var.ResourceBaseName), so the private endpoint FQDN is:
+    #   <server-name>.privatelink.postgres.database.azure.com
+    DB_HOST = "${lower(var.ResourceBaseName)}.privatelink.postgres.database.azure.com"
+    DB_PORT = "5432"
   }
 
   identity {
