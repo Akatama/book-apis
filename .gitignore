@@ -5,3 +5,4 @@ booksapi/.env
 booksapi/.venv
 booksapi/__pycache__
 .aider*
+.env
